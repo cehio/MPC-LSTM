@@ -1,6 +1,6 @@
 # Controlador On-Off por Puerto Serial (ESP32)
 
-Script en Python para monitorear sensores de temperatura y humedad y controlar actuadores (calentador, humidificador y ventana) a través de una conexión serial con un microcontrolador **ESP32**. Incluye control por histéresis, reintentos de comunicación con *timeout* y formateo de salidas para modelos de predicción (`ActuatorController`).
+Script en Python para monitorear sensores de temperatura y humedad y controlar actuadores (calentador, humidificador y ventana) a través de una conexión serial con un microcontrolador **ESP32**. Incluye control por histéresis, reintentos de comunicación con *timeout* y formateo de salidas para modelos de predicción (`ActuatorController`). En el presente código no se emplea la ventana como actuador.
 
 ---
 
