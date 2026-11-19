@@ -29,3 +29,4 @@ El sistema está diseñado para generar datos de simulación robustos, incluyend
    ```bash
    python -m venv venv
    source venv/bin/activate  # En Windows: venv\Scripts\activate
+   pip install -r requirements.txt
