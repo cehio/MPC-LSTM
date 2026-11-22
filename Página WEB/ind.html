@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Monitoreo Control Invernadero v1</title>
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+  <style>
+    body {
+      min-width: 310px;
+      max-width: 1280px;
+      margin: 0 auto;
+      background-color: #ffffff;
+    }
+    h2 {
+      font-family: Arial, sans-serif;
+      font-size: 2.5rem;
+      text-align: center;
+      color: #1b2b51;
+    }
+  </style>
+</head>
+<body>
+  <h2>Monitoreo Control Invernadero v1</h2>
+
+  <label for="time-range">Intervalo de tiempo:</label>
+  <select id="time-range" onchange="updateCharts()">
+    <option value="1 HOUR">Última hora</option>
+    <option value="1 DAY" selected>Último día</option>
+    <option value="7 DAY">Última semana</option>
+  </select>
+
+  <div id="chart-combined_temp" class="container"></div>
+  <div id="chart-combined_hum" class="container"></div>
+  <div id="actuators" class="container"></div>
+
+  <script>
+    const xAxisConfig = {
+      type: 'datetime',
+      labels: {
+        format: '{value:%Y-%m-%d %H:%M:%S}',
+        rotation: 45
+      }
+    };
+
+    const chartCombined_temp = new Highcharts.Chart({
+      chart: { renderTo: 'chart-combined_temp', type: 'line' },
+      title: { text: 'Temperatura: Interna, Externa y Referencia' },
+      series: [
+        { name: 'Temperatura Interna (°C)', data: [], color: '#00246B' },
+        { name: 'Temperatura Externa (°C)', data: [], color: '#89ABE3' },
+        { name: 'Temperatura Referencia', data: [], color: '#FFBB00', dashStyle: 'Dash' }
+      ],
+      xAxis: xAxisConfig,
+      yAxis: {
+        title: { text: '°C' },
+        min: 0,
+        max: 40
+      },
+      credits: { enabled: false }
+    });
+
+    const chartCombined_hum = new Highcharts.Chart({
+      chart: { renderTo: 'chart-combined_hum', type: 'line' },
+      title: { text: 'Humedad %: Interna, Externa y Referencia' },
+      series: [
+        { name: 'Humedad Interna', data: [], color: '#00246B' },
+        { name: 'Humedad Externa', data: [], color: '#89ABE3' },
+        { name: 'Humedad Referencia', data: [], color: '#FFBB00', dashStyle: 'Dash' }
+      ],
+      xAxis: xAxisConfig,
+      yAxis: {
+        title: { text: '%' },
+        min: 30,
+        max: 90
+      },
+      credits: { enabled: false }
+    });
+
+    const actuators = new Highcharts.Chart({
+      chart: { renderTo: 'actuators', type: 'line' },
+      title: { text: 'Actuadores' },
+      series: [
+        { name: 'Ventana', data: [], color: '#00246B' },
+        { name: 'Calentador', data: [], color: '#89ABE3' },
+        { name: 'Humidificador', data: [], color: '#FFBB00', dashStyle: 'Dash' }
+      ],
+      xAxis: xAxisConfig,
+      yAxis: {
+        title: { text: 'Nivel (0 - 255)' },
+        min: 0,
+        max: 255
+      },
+      credits: { enabled: false }
+    });
+
+    function updateCharts() {
+      const timeRange = encodeURIComponent(document.getElementById("time-range").value);
+
+      fetch(`datos.php?time_range=${timeRange}`)
+        .then(response => response.json())
+        .then(data => {
+          if (!data) {
+            console.error('Datos no válidos:', data);
+            return;
+          }
+
+          chartCombined_temp.series[0].setData(data.value1, true);
+          chartCombined_temp.series[1].setData(data.value2, true);
+          chartCombined_temp.series[2].setData(data.value8, true);
+
+          chartCombined_hum.series[0].setData(data.value3, true);
+          chartCombined_hum.series[1].setData(data.value4, true);
+          chartCombined_hum.series[2].setData(data.value9, true);
+
+          actuators.series[0].setData(data.value5, true);
+          actuators.series[1].setData(data.value6, true);
+          actuators.series[2].setData(data.value7, true);
+        })
+        .catch(error => console.error('Error al actualizar los datos:', error));
+    }
+
+    updateCharts();
+    setInterval(updateCharts, 5000);
+  </script>
+</body>
+</html>
